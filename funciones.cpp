@@ -1,79 +1,79 @@
 #include "funciones.h"
+#include "udeabook.h"
 #include <iostream>
 
 using namespace std;
 
-
-bool inicio_sesion(bool& salir){
+bool inicio(){
+    unsigned short int opcInicio;
     cout << "                                                           " << endl;
     cout << "                          UdeaBook                         " << endl;
     cout << "                                                           " << endl;
-    cout << "                      Inicio de sesion                     " << endl;
+    cout << "          1) Iniciar sesion                                " << endl;
+    cout << "          0) Salir                                         " << endl;
     cout << "                                                           " << endl;
-    cout << "          Usuario >> ";
-
-    char usuario[20];
-    cin.getline(usuario, 20);
-    bool validador_usuario = true; // bool validador de usuario()
-    while(!validador_usuario){
-        unsigned short int opc_quedarse;
+    cout << "          >> ";
+    cin >> opcInicio;
+    while(opcInicio>1){
         cout << "                                                           " << endl;
-        cout << "          Usuario no existente                             ";
-        cout << "          (0)salir (1)volver a intentar                    " << endl;
-        cout << "          >> ";
-        cin >> opc_quedarse;
-        while(opc_quedarse>1){
-            cout << "                                                           " << endl;
-            cout << "          Ingrese una opcion valida >> ";
-            cin >> opc_quedarse;
-        }
-        if(opc_quedarse==0){
-            salir = true;
-            return false;
-        }
-        cout << "                                                           " << endl;
-        cout << "          Usuario >> ";
-        cin.getline(usuario, 20);
-        validador_usuario = true; // bool validador de usuario()
+        cout << "          Ingrese una opcion valida >> ";
+        cin >> opcInicio;
     }
-    cout << "                                                           " << endl;
-    cout << "          Contrasenia >> ";
-    char contrasenia[30];
-    cin.getline(contrasenia, 30);
-    bool validador_contrasenia = true; // bool validador de contrasena()
-    while(!validador_contrasenia){
-        unsigned short int opc_quedarse;
-        cout << "                                                           " << endl;
-        cout << "          Contrasenia incorrecta                           " << endl;
-        cout << "          (0)salir (1)volver a intentar (2)otro usuario    " << endl;
-        cout << "          >> ";
-        cin >> opc_quedarse;
-        while(opc_quedarse>2){
-            cout << "                                                           " << endl;
-            cout << "          Ingrese una opcion valida >> ";
-            cin >> opc_quedarse;
-        }
-        switch(opc_quedarse){
-        case 0:
-            salir = true;
-            return false;
-            break;
-        case 1:
-            salir = false;
-            return false;
-            break;
-        }
-        cout << "                                                           " << endl;
-        cout << "          Usuario >> ";
-        cin.getline(contrasenia, 20);
-        validador_contrasenia = true; // bool validador de usuario()
+    if(opcInicio==0){
+        return true;
     }
-
-    cout << "                                                           " << endl;
-
-    return true;
+    return false;
 }
 
+
+bool inicio_sesion(UdeaBook &sistema){
+    sistema.cargaUsuarios();
+    bool salir = false;
+
+    while(!salir){
+        cout << "                      Inicio de sesion                     " << endl;
+        cout << "                                                           " << endl;
+        cout << "          Usuario >> ";
+
+        string usuario;
+        cin.ignore();
+        getline(cin, usuario);
+
+        cout << "                                                           " << endl;
+        cout << "          Contrasenia >> ";
+
+        string contrasenia;
+        cin.ignore();
+        getline(cin, contrasenia);
+
+        bool inicioCorrecto = sistema.iniciarSesion(usuario, contrasenia);
+
+        if(inicioCorrecto){
+            return true;
+        } else{
+            unsigned short int opcIncorrecto;
+            cout << "                                                           " << endl;
+            cout << "          el usuario o la clave son incorrectos            " << endl;
+            cout << "                                                           " << endl;
+            cout << "               (0)Salir (1)Volver a intentar               " << endl;
+            cout << "                                                           " << endl;
+            cout << "          >> ";
+            cin >> opcIncorrecto;
+
+            while(opcIncorrecto>1){
+                cout << "                                                           " << endl;
+                cout << "          Ingrese una opcion valida >> ";
+                cin >> opcIncorrecto;
+            }
+            if(opcIncorrecto==0){
+                salir = true;
+            }
+        }
+    }
+    return false;
+}
+
+/*
 
 void menu(bool& inicio_exitoso){
     //void visualizacion_superamigos()
@@ -175,3 +175,4 @@ void menu(bool& inicio_exitoso){
         }
     }
 }
+*/

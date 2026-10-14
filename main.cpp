@@ -1,11 +1,16 @@
 #include "funciones.h"
+#include "udeabook.h"
 
 int main()
 {
-    bool salir = false;
-    bool inicio_valido;
-    while(!salir){
-        inicio_valido = inicio_sesion(salir);
-        menu(inicio_valido);
+    bool salirPrograma, salirInicio;
+    UdeaBook sistema;
+    salirPrograma = inicio();
+    while(!salirPrograma){
+        salirInicio = inicio_sesion(sistema);
+        if (!salirInicio){
+            //menu;
+        }
+        salirPrograma = inicio();
     }
 }

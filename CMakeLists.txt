@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(desafio2 main.cpp
-    funciones.h funciones.cpp)
+    funciones.h funciones.cpp
+    udeabook.h udeabook.cpp
+    usuario.h usuario.cpp
+    fecha.h fecha.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS desafio2

@@ -1,0 +1,13 @@
+20260101;usuario1;clave1;1;ciudad1
+20260102;usuario2;clave2;2;ciudad2
+20260103;usuario3;clave3;3;ciudad3
+20260104;usuario4;clave4;4;ciudad4
+20260105;usuario5;clave5;5;ciudad5
+20260106;usuario6;clave6;6;ciudad6
+20260107;usuario7;clave7;7;ciudad7
+20260108;usuario8;clave8;8;ciudad8
+20260109;usuario9;clave9;9;ciudad9
+20260110;usuario10;clave10;10;ciudad10
+20260111;usuario11;clave11;11;ciudad11
+20260112;usuario12;clave12;12;ciudad12
+20260113;usuario13;clave13;13;ciudad13
