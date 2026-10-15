@@ -9,7 +9,12 @@ add_executable(desafio2 main.cpp
     funciones.h funciones.cpp
     udeabook.h udeabook.cpp
     usuario.h usuario.cpp
-    fecha.h fecha.cpp)
+    fecha.h fecha.cpp
+    foto.cpp
+    foto.h
+    album.cpp
+    album.h
+    lista.h)
 
 include(GNUInstallDirs)
 install(TARGETS desafio2

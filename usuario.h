@@ -3,7 +3,7 @@
 #define USUARIO_H
 
 #include <string>
-#include "Fecha.h"
+#include "fecha.h"
 
 using namespace std;
 
