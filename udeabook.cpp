@@ -50,15 +50,15 @@ void UdeaBook::cargaUsuarios(){
     cantidadUsuarios = contarUsuarios(ruta);
     ifstream archivo(ruta);
     string linea;
-    string campos[5];
     usuarios = new Usuario[cantidadUsuarios];
     unsigned int cont = 1;
     while (getline(archivo, linea)) {
+        string campos[5];
         if (linea.length() > 0) {
             separarCampos(linea, campos);
         }
         unsigned char valorChar = static_cast<unsigned char>(stoi(campos[3]));
-        *(usuarios+cont) = Usuario(campos[0], campos[1], campos[2], valorChar, Fecha(campos[4]), cont);
+        *(usuarios+cont-1) = Usuario(campos[1], campos[2], campos[4], valorChar, Fecha(campos[0]),cont);
         cont++;
     }
     archivo.close();
@@ -66,10 +66,14 @@ void UdeaBook::cargaUsuarios(){
 
 unsigned int UdeaBook::buscarUsuario(const string usuario){
     unsigned int cont = 0;
-    while(usuario!=(usuarios[cont].getNombre())&&(cont<cantidadUsuarios)){
+    while((cont<cantidadUsuarios)&&(usuario!=(usuarios[cont].getNombre()))){
         cont++;
     }
-    return cont+1;
+    cont++;
+    if(cont>cantidadUsuarios){
+        cont = 0;
+    }
+    return cont;
 }
 
 bool UdeaBook::iniciarSesion(const string& nombre, const string&claveInput){
@@ -77,7 +81,7 @@ bool UdeaBook::iniciarSesion(const string& nombre, const string&claveInput){
     if(indiceAux == 0){
         return false;
     }
-    string clave = usuarios[indiceAux].getClave();
+    string clave = usuarios[indiceAux-1].getClave();
     if(clave != claveInput){
         return false;
     }
