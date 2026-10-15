@@ -43,7 +43,6 @@ bool inicio_sesion(UdeaBook &sistema){
         cout << "          Contrasenia >> ";
 
         string contrasenia;
-        cin.ignore();
         getline(cin, contrasenia);
 
         bool inicioCorrecto = sistema.iniciarSesion(usuario, contrasenia);
