@@ -1,12 +1,13 @@
+
 #ifndef USUARIO_H
 #define USUARIO_H
-#include "fecha.h"
+
 #include <string>
+#include "Fecha.h"
 
 using namespace std;
 
-class Usuario
-{
+class Usuario {
 private:
     string nombre;
     string clave;
@@ -17,13 +18,30 @@ private:
 
 public:
     Usuario();
-    Usuario(string, string, string, unsigned char, Fecha, unsigned int);
+
+    Usuario(string n, string cl, string ciu, unsigned char nP, const Fecha& fI, unsigned int iU); //constructor miembro a miembro
+
+    Usuario(const Usuario& otro);
+
+    Usuario& operator=(const Usuario& otro);
+
+    ~Usuario();
+
+    //Getters
     string getNombre();
     string getClave();
     string getCiudad();
     unsigned char getPais();
     Fecha getFecha();
     unsigned int getIndice();
+
+    //Setters
+    void setNombre(const string& n);
+    void setClave(const string& cl);
+    void setCiudad(const string& ciu);
+    void setPais(unsigned char nP);
+    void setFecha(const Fecha& fI);
+    void setIndice(unsigned int iU);
 };
 
-#endif // USUARIO_H
+#endif

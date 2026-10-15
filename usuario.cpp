@@ -8,8 +8,7 @@ Usuario::Usuario() {
     indiceUsuario = 0;
 }
 
-Usuario::Usuario(string n, string cl, string ciu, unsigned char nP,
-                 Fecha fI, unsigned int iU) {
+Usuario::Usuario(string n, string cl, string ciu, unsigned char nP, const Fecha& fI, unsigned int iU) {
     nombre = n;
     clave = cl;
     ciudad = ciu;
@@ -17,6 +16,35 @@ Usuario::Usuario(string n, string cl, string ciu, unsigned char nP,
     fechaInscripcion = fI;
     indiceUsuario = iU;
 }
+
+// Constructor de copia
+Usuario::Usuario(const Usuario& otro)
+    : nombre(otro.nombre),
+    clave(otro.clave),
+    ciudad(otro.ciudad),
+    numeroPais(otro.numeroPais),
+    fechaInscripcion(otro.fechaInscripcion),
+    indiceUsuario(otro.indiceUsuario) {
+}
+
+// Operador de asignación
+Usuario& Usuario::operator=(const Usuario& otro) {
+    if (this != &otro) {
+        nombre = otro.nombre;
+        clave = otro.clave;
+        ciudad = otro.ciudad;
+        numeroPais = otro.numeroPais;
+        fechaInscripcion = otro.fechaInscripcion;
+        indiceUsuario = otro.indiceUsuario;
+    }
+
+    return *this;
+}
+
+// Destructor
+Usuario::~Usuario() {
+}
+
 
 string Usuario::getNombre(){
     return nombre;
@@ -40,4 +68,30 @@ Fecha Usuario::getFecha(){
 
 unsigned int Usuario::getIndice(){
     return indiceUsuario;
+}
+
+// ---------- Setters ----------
+
+void Usuario::setNombre(const string& n) {
+    nombre = n;
+}
+
+void Usuario::setClave(const string& cl) {
+    clave = cl;
+}
+
+void Usuario::setCiudad(const string& ciu) {
+    ciudad = ciu;
+}
+
+void Usuario::setPais(unsigned char nP) {
+    numeroPais = nP;
+}
+
+void Usuario::setFecha(const Fecha& fI) {
+    fechaInscripcion = fI;
+}
+
+void Usuario::setIndice(unsigned int iU) {
+    indiceUsuario = iU;
 }
