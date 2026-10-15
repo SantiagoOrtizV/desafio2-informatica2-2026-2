@@ -45,6 +45,7 @@ Usuario& Usuario::operator=(const Usuario& otro) {
 Usuario::~Usuario() {
 }
 
+//getters
 
 string Usuario::getNombre(){
     return nombre;
