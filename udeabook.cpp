@@ -18,6 +18,7 @@ UdeaBook::~UdeaBook() { //libera toda la memoria usada para cargar los usuarios
     delete[] usuarios;
 }
 
+
 unsigned int contarUsuarios(const string ruta) {
     ifstream archivo(ruta);
     if (!archivo.is_open()) {
@@ -51,17 +52,28 @@ void separarCampos(const string& linea, string campos[5]) {
 
 void UdeaBook::cargaUsuarios(){
     const string ruta = "usuarios.txt";
-    cantidadUsuarios = contarUsuarios(ruta);
+
     ifstream archivo(ruta);
-    string linea;
+
+    if (!archivo.is_open()) {
+        cout << "No se pudo abrir el archivo: " << ruta << endl;
+        return;
+    }
+    cout << "Archivo leido exitosamente!"<<endl;
+
+    unsigned int nuevaCantidad = contarUsuarios(ruta); //contamos usuarios antes de reemplazar la carga anterior
+    cout << "nueva cantidad usuarios: "<<nuevaCantidad<<endl;
 
     delete[] usuarios;
     usuarios = nullptr;
     usuarioActual = nullptr;
+    cantidadUsuarios = nuevaCantidad;
 
     usuarios = new Usuario[cantidadUsuarios];
 
     unsigned int cont = 1;
+    string linea;
+
     while (getline(archivo, linea)) {
         string campos[5];
         if (linea.length() > 0) {
@@ -97,4 +109,12 @@ bool UdeaBook::iniciarSesion(const string& nombre, const string&claveInput){
     }
     usuarioActual = usuarios+indiceAux-1;
     return true;
+}
+
+Usuario* UdeaBook::getUsuarioActual() {
+    return usuarioActual;
+}
+
+const Usuario* UdeaBook::getUsuarioActual() const {
+    return usuarioActual;
 }

@@ -17,6 +17,15 @@ public:
     void cargaUsuarios();
     bool iniciarSesion(const string&, const string&);
     unsigned int buscarUsuario(const string);
+
+    //getters para tener acceso al puntero del usuario que inicio sesion
+    Usuario* getUsuarioActual();
+    const Usuario* getUsuarioActual() const; //lo mismo pero solo modo lectura
+
+    UdeaBook(const UdeaBook&) = delete; //esto evita que se copie por error udeabook ya que sería peligroso por administrar memoria dinamica
+    UdeaBook& operator=(const UdeaBook&) = delete;
+
+    ~UdeaBook();
 };
 
 #endif
