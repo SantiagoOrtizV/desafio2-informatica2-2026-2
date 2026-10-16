@@ -46,27 +46,27 @@ Usuario::~Usuario() {
 }
 
 
-string Usuario::getNombre(){
+string Usuario::getNombre() const{
     return nombre;
 }
 
-string Usuario::getClave(){
+string Usuario::getClave() const{
     return clave;
 }
 
-string Usuario::getCiudad(){
+string Usuario::getCiudad() const{
     return ciudad;
 }
 
-unsigned char Usuario::getPais(){
+unsigned char Usuario::getPais() const{
     return numeroPais;
 }
 
-Fecha Usuario::getFecha(){
+Fecha Usuario::getFecha() const{
     return fechaInscripcion;
 }
 
-unsigned int Usuario::getIndice(){
+unsigned int Usuario::getIndice() const{
     return indiceUsuario;
 }
 

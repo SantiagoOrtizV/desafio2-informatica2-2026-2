@@ -27,13 +27,13 @@ public:
 
     ~Usuario();
 
-    //Getters
-    string getNombre();
-    string getClave();
-    string getCiudad();
-    unsigned char getPais();
-    Fecha getFecha();
-    unsigned int getIndice();
+    //Getters const para solo consultar
+    string getNombre() const;
+    string getClave() const;
+    string getCiudad() const;
+    unsigned char getPais() const;
+    Fecha getFecha() const;
+    unsigned int getIndice() const;
 
     //Setters
     void setNombre(const string& n);

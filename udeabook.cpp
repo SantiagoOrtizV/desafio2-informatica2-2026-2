@@ -14,6 +14,10 @@ UdeaBook::UdeaBook(){
     usuarioActual = nullptr;
 }
 
+UdeaBook::~UdeaBook() { //libera toda la memoria usada para cargar los usuarios
+    delete[] usuarios;
+}
+
 unsigned int contarUsuarios(const string ruta) {
     ifstream archivo(ruta);
     if (!archivo.is_open()) {
@@ -50,7 +54,13 @@ void UdeaBook::cargaUsuarios(){
     cantidadUsuarios = contarUsuarios(ruta);
     ifstream archivo(ruta);
     string linea;
+
+    delete[] usuarios;
+    usuarios = nullptr;
+    usuarioActual = nullptr;
+
     usuarios = new Usuario[cantidadUsuarios];
+
     unsigned int cont = 1;
     while (getline(archivo, linea)) {
         string campos[5];
