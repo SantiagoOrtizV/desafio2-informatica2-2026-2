@@ -18,6 +18,19 @@ Album::Album(string nombre, unsigned int indicePropietario,
     setPrivacidad(privacidad);
 }
 
+// Constructor de copia profunda
+Album::Album(const Album& otro)
+    : nameAlbum(otro.nameAlbum),
+    indicePropietario(otro.indicePropietario),
+    privacidad(otro.privacidad),
+    fotos() {
+
+    for (unsigned int i = 0; i < otro.fotos.tamano(); i++) {
+        Foto* copia = new Foto(*otro.fotos[i]);
+        fotos.agregar(copia);
+    }
+}
+
 // Destructor
 Album::~Album() {       //cada posicion de fotos contiene un puntero a un objeto Foto, este ciclo destruye cada OBJETO, luego se desturye
                     //el atributo fotos y el destructor de Lista libera ese arreglo de punteros
@@ -40,6 +53,34 @@ void Album::agregarFoto(Foto* foto) {
     }
 
     fotos.agregar(foto);
+}
+
+
+// Operador de asignación con copia profunda
+Album& Album::operator=(const Album& otro) {
+    if (this != &otro) {
+
+        // Liberar las fotos que pertenecían a este álbum
+        for (unsigned int i = 0; i < fotos.tamano(); i++) {
+            delete fotos[i];
+        }
+
+        // Vaciar la lista de punteros antes de asignar las nuevas referencias a Foto
+        fotos = Lista<Foto*>();
+
+        // Copiar los atributos simples
+        nameAlbum = otro.nameAlbum;
+        indicePropietario = otro.indicePropietario;
+        privacidad = otro.privacidad;
+
+        // Crear copias independientes de las fotos
+        for (unsigned int i = 0; i < otro.fotos.tamano(); i++) {
+            Foto* copia = new Foto(*otro.fotos[i]);
+            fotos.agregar(copia);
+        }
+    }
+
+    return *this;
 }
 
 // Obtener una foto por índice

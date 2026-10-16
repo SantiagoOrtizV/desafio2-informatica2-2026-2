@@ -36,7 +36,7 @@ Foto& Foto::operator=(const Foto& otra) {
     return *this;
 }
 
-Fecha Foto::getFechaCap() const {
+const Fecha& Foto::getFechaCap() const {
     return fechaCap;
 }
 

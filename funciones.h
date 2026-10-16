@@ -4,6 +4,7 @@
 
 bool inicio();
 bool inicio_sesion(UdeaBook&);
-void menu(bool& inicio_exitoso);
+void menu(UdeaBook& sistema);
+//void menu(bool& inicio_exitoso);
 
 #endif

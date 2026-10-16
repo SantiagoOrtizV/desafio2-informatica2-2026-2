@@ -21,6 +21,8 @@ public:
 
     Album();
     Album(string nombre, unsigned int indicePropietario, unsigned char privacidad);
+    Album(const Album& otro);
+    Album& operator=(const Album& otro);
 
     ~Album();
 

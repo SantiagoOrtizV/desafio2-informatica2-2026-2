@@ -25,7 +25,7 @@ public:
 
 
 //Getters
-    Fecha getFechaCap() const;
+    const Fecha& getFechaCap() const;
     unsigned long long getTamano() const;
     string getNombreArchivo() const;
     unsigned int getLikes() const;

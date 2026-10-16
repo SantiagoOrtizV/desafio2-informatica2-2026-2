@@ -48,6 +48,7 @@ bool inicio_sesion(UdeaBook &sistema){
         bool inicioCorrecto = sistema.iniciarSesion(usuario, contrasenia);
 
         if(inicioCorrecto){
+
             return true;
         } else{
             unsigned short int opcIncorrecto;
@@ -70,6 +71,37 @@ bool inicio_sesion(UdeaBook &sistema){
         }
     }
     return false;
+}
+
+//version temporal de menu para probar
+
+void menu(UdeaBook& sistema) {
+    bool cerrarSesion = false;
+
+    while (!cerrarSesion) {
+        cout << "\n";
+        cout << "          Bienvenido a UdeaBook\n";
+        cout << "          1) Administrar albumes\n";
+        cout << "          0) Cerrar sesion\n";
+        cout << "          Su opcion >> ";
+
+        unsigned short int opcion;
+        cin >> opcion;
+
+        switch (opcion) {
+        case 0:
+            cerrarSesion = true;
+            break;
+
+        case 1:
+            cout << "Administracion de albumes pendiente.\n";
+            break;
+
+        default:
+            cout << "Ingrese una opcion valida.\n";
+            break;
+        }
+    }
 }
 
 /*
