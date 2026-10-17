@@ -164,3 +164,14 @@ const Album* Usuario::obtenerAlbum(unsigned int indice) const {
 unsigned int Usuario::cantidadAlbumes() const {
     return albumes.tamano();
 }
+
+bool Usuario::existeAlbum(const string& nombre) const {
+    for (unsigned int i = 0; i < albumes.tamano(); i++) {
+        if (albumes[i] != nullptr &&
+            albumes[i]->getNombre() == nombre) {
+            return true;
+        }
+    }
+
+    return false;
+}

@@ -25,7 +25,8 @@ int main()
     }
     return 0;
 
-    /*
+    /* MENU DE SANTI
+
     bool salirPrograma, salirInicio;
     UdeaBook sistema;
     salirPrograma = inicio();

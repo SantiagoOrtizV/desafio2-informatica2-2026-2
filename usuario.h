@@ -31,6 +31,7 @@ public:
     ~Usuario();
 
     void agregarAlbum(Album* album);
+    bool existeAlbum(const string& nombre) const;
 
     Album* obtenerAlbum(unsigned int indice);
     const Album* obtenerAlbum(unsigned int indice) const;

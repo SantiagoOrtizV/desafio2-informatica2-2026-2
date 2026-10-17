@@ -1,7 +1,9 @@
 #include "funciones.h"
 #include "udeabook.h"
+#include "usuario.h"
+#include "album.h"
+#include "foto.h"
 #include <iostream>
-
 using namespace std;
 
 bool inicio(){
@@ -75,6 +77,7 @@ bool inicio_sesion(UdeaBook &sistema){
 
 //version temporal de menu para probar
 
+
 void menu(UdeaBook& sistema) {
     bool cerrarSesion = false;
 
@@ -83,7 +86,7 @@ void menu(UdeaBook& sistema) {
         cout << "          Bienvenido a UdeaBook\n";
         cout << "          1) Administrar albumes\n";
         cout << "          0) Cerrar sesion\n";
-        cout << "          Su opcion >> ";
+        cout << "          >> ";
 
         unsigned short int opcion;
         cin >> opcion;
@@ -93,9 +96,238 @@ void menu(UdeaBook& sistema) {
             cerrarSesion = true;
             break;
 
-        case 1:
-            cout << "Administracion de albumes pendiente.\n";
+        case 1: {
+            Usuario* usuario = sistema.getUsuarioActual();
+
+            if (usuario == nullptr) {
+                cout << "No hay un usuario con sesion activa.\n";
+                break;
+            }
+
+            bool volver = false;
+
+            while (!volver) {
+                cout << "\n";
+                cout << "          Administracion de albumes\n";
+                cout << "          1) Crear album\n";
+                cout << "          2) Ver mis albumes\n";
+                cout << "          3) Agregar foto a un album\n";
+                cout << "          4) Ver fotos de un album\n";
+                cout << "          0) Volver\n";
+                cout << "          >> ";
+
+                unsigned short int opcionAlbumes;
+                cin >> opcionAlbumes;
+
+                switch (opcionAlbumes) {
+                case 0:
+                    volver = true;
+                    break;
+
+                case 1: {
+                    string nombre;
+                    unsigned int privacidad;
+
+                    cin.ignore(10000, '\n');
+
+                    cout << "Nombre del album >> ";
+                    getline(cin, nombre);
+
+                    if (usuario->existeAlbum(nombre)) {
+                        cout << "Ya tienes un album con ese nombre.\n";
+                        break;
+                    }
+
+                    cout << "Privacidad:\n";
+                    cout << "0) Publico\n";
+                    cout << "1) Privado\n";
+                    cout << "2) Solo amigos\n";
+                    cout << ">> ";
+                    cin >> privacidad;
+
+                    if (privacidad > Album::AMIGOS) {
+                        cout << "Privacidad no valida.\n";
+                        break;
+                    }
+
+                    Album* nuevoAlbum = new Album(
+                        nombre,
+                        usuario->getIndice(),
+                        static_cast<unsigned char>(privacidad)
+                        );
+
+                    usuario->agregarAlbum(nuevoAlbum);
+
+                    cout << "Album creado correctamente.\n";
+                    break;
+                }
+
+                case 2: {
+                    unsigned int cantidad =
+                        usuario->cantidadAlbumes();
+
+                    if (cantidad == 0) {
+                        cout << "Todavia no tienes albumes.\n";
+                        break;
+                    }
+
+                    cout << "\nTus albumes:\n";
+
+                    for (unsigned int i = 0; i < cantidad; i++) {
+                        const Album* album = usuario->obtenerAlbum(i);
+
+                        if (album != nullptr) {
+                            cout << i + 1 << ") "
+                                 << album->getNombre()
+                                 << " | Privacidad: "<<
+                                static_cast<unsigned int>(album->getPrivacidad())
+                                 << "\n";
+                        }
+                    }
+
+                    break;
+                }
+
+
+                case 3: {
+                    unsigned int cantidad = usuario->cantidadAlbumes();
+
+                    if (cantidad == 0) {
+                        cout << "Primero debes crear un album.\n";
+                        break;
+                    }
+
+                    cout << "\nTus albumes:\n";
+
+                    for (unsigned int i = 0; i < cantidad; i++) {
+                        const Album* album = usuario->obtenerAlbum(i);
+
+                        if (album != nullptr) {
+                            cout << i + 1 << ") " << album->getNombre() << "\n";
+                        }
+                    }
+
+                    unsigned int seleccion;
+                    cout << "Selecciona el album >> ";
+                    cin >> seleccion;
+
+                    if (seleccion == 0 || seleccion > cantidad) {
+                        cout << "Numero de album no valido.\n";
+                        break;
+                    }
+
+                    Album* albumSeleccionado = usuario->obtenerAlbum(seleccion - 1);
+
+                    if (albumSeleccionado == nullptr) {
+                        cout << "No se pudo acceder al album.\n";
+                        break;
+                    }
+
+                    string nombreArchivo;
+                    string fechaTexto;
+                    unsigned long long tamano;
+                    unsigned int likes;
+
+                    cin.ignore(100000, '\n');
+
+                    cout << "Nombre del archivo de la foto >> ";
+                    getline(cin, nombreArchivo);
+
+                    cout << "Fecha de captura (DD/MM/AAAA) >> ";
+                    getline(cin, fechaTexto);
+
+                    cout << "Tamano en bytes >> ";
+                    cin >> tamano;
+
+                    cout << "Cantidad de likes >> ";
+                    cin >> likes;
+
+                    Foto* nuevaFoto = new Foto(
+                        Fecha(fechaTexto),
+                        tamano,
+                        nombreArchivo,
+                        likes
+                        );
+
+                    albumSeleccionado->agregarFoto(nuevaFoto);
+
+                    cout << "Foto agregada correctamente.\n";
+                    break;
+                }
+
+
+                case 4: {
+                    unsigned int cantidad = usuario->cantidadAlbumes();
+
+                    if (cantidad == 0) {
+                        cout << "Primero debes crear un album.\n";
+                        break;
+                    }
+
+                    cout << "\nTus albumes:\n";
+
+                    for (unsigned int i = 0; i < cantidad; i++) {
+                        const Album* album = usuario->obtenerAlbum(i);
+
+                        if (album != nullptr) {
+                            cout << i + 1 << ") " << album->getNombre() << "\n";
+                        }
+                    }
+
+                    unsigned int seleccion;
+                    cout << "Selecciona el album >> ";
+                    cin >> seleccion;
+
+                    if (seleccion == 0 || seleccion > cantidad) {
+                        cout << "Numero de album no valido.\n";
+                        break;
+                    }
+
+                    const Album* albumSeleccionado =
+                        usuario->obtenerAlbum(seleccion - 1);
+
+                    if (albumSeleccionado == nullptr) {
+                        cout << "No se pudo acceder al album.\n";
+                        break;
+                    }
+
+                    unsigned int cantidadFotos = albumSeleccionado->cantidadFotos();
+
+                    if (cantidadFotos == 0) {
+                        cout << "Este album todavia no tiene fotos.\n";
+                        break;
+                    }
+
+                    cout << "\nFotos del album: "
+                         << albumSeleccionado->getNombre() << "\n";
+
+                    for (unsigned int i = 0; i < cantidadFotos; i++) {
+                        const Foto* foto = albumSeleccionado->obtenerFoto(i);
+
+                        if (foto != nullptr) {
+                            cout << "\nFoto " << i + 1 << "\n";
+                            cout << "Archivo: " << foto->getNombreArchivo() << "\n";
+                            cout << "Fecha de captura: "
+                                 << foto->getFechaCap().getDia() << "/"
+                                 << foto->getFechaCap().getMes() << "/"
+                                 << foto->getFechaCap().getAnio() << "\n";
+                            cout << "Tamano: " << foto->getTamano()
+                                 << " bytes\n";
+                            cout << "Likes: " << foto->getLikes() << "\n";
+                        }
+                    }
+
+                    break;
+                }
+
+                default:
+                    cout << "Ingrese una opcion valida.\n";
+                    break;
+                }
+            }
+
             break;
+        }
 
         default:
             cout << "Ingrese una opcion valida.\n";
@@ -103,6 +335,7 @@ void menu(UdeaBook& sistema) {
         }
     }
 }
+
 
 /*
 

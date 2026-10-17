@@ -62,7 +62,7 @@ void UdeaBook::cargaUsuarios(){
     cout << "Archivo leido exitosamente!"<<endl;
 
     unsigned int nuevaCantidad = contarUsuarios(ruta); //contamos usuarios antes de reemplazar la carga anterior
-    cout << "nueva cantidad usuarios: "<<nuevaCantidad<<endl;
+    //cout << "nueva cantidad usuarios: "<<nuevaCantidad<<endl;
 
     delete[] usuarios;
     usuarios = nullptr;
