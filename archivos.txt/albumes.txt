@@ -1,0 +1,4 @@
+1;viajes;0
+1;Familia;1
+1;hola;1
+5;Edificios;2

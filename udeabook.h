@@ -15,6 +15,13 @@ private:
 public:
     UdeaBook();
     void cargaUsuarios();
+    void cargaAlbumes();
+    void cargaFotos();
+
+    bool guardarAlbumes() const;
+    bool guardarFotos() const;
+    bool guardarDatos() const;
+
     bool iniciarSesion(const string&, const string&);
     unsigned int buscarUsuario(const string);
 

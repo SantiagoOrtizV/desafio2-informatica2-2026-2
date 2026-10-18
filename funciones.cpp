@@ -29,7 +29,7 @@ bool inicio(){
 
 
 bool inicio_sesion(UdeaBook &sistema){
-    sistema.cargaUsuarios();
+
     bool salir = false;
 
     while(!salir){
@@ -233,17 +233,34 @@ void menu(UdeaBook& sistema) {
                     cout << "Nombre del archivo de la foto >> ";
                     getline(cin, nombreArchivo);
 
+                    if (nombreArchivo.empty()) {
+                        cout << "El nombre del archivo no puede estar vacio.\n";
+                        break;
+                    }
+
                     cout << "Fecha de captura (DD/MM/AAAA) >> ";
                     getline(cin, fechaTexto);
 
+                    Fecha fechaCaptura;
+
+                    if (!fechaCaptura.setFecha(fechaTexto)) {
+                        cout << "La fecha ingresada no es valida.\n";
+                        break;
+                    }
+
                     cout << "Tamano en bytes >> ";
                     cin >> tamano;
+
+                    if (tamano == 0) {
+                        cout << "El tamano debe ser mayor que cero.\n";
+                        break;
+                    }
 
                     cout << "Cantidad de likes >> ";
                     cin >> likes;
 
                     Foto* nuevaFoto = new Foto(
-                        Fecha(fechaTexto),
+                            Fecha(fechaTexto),
                         tamano,
                         nombreArchivo,
                         likes
@@ -254,6 +271,7 @@ void menu(UdeaBook& sistema) {
                     cout << "Foto agregada correctamente.\n";
                     break;
                 }
+
 
 
                 case 4: {
@@ -298,27 +316,63 @@ void menu(UdeaBook& sistema) {
                         break;
                     }
 
-                    cout << "\nFotos del album: "
-                         << albumSeleccionado->getNombre() << "\n";
+                    // Empezamos mostrando la primera foto.
+                    unsigned int indiceFoto = 0;
+                    unsigned int opcionFoto = 0;
 
-                    for (unsigned int i = 0; i < cantidadFotos; i++) {
-                        const Foto* foto = albumSeleccionado->obtenerFoto(i);
+                    while (opcionFoto != 3) {
+                        const Foto* foto = albumSeleccionado->obtenerFoto(indiceFoto);
 
-                        if (foto != nullptr) {
-                            cout << "\nFoto " << i + 1 << "\n";
-                            cout << "Archivo: " << foto->getNombreArchivo() << "\n";
-                            cout << "Fecha de captura: "
-                                 << foto->getFechaCap().getDia() << "/"
-                                 << foto->getFechaCap().getMes() << "/"
-                                 << foto->getFechaCap().getAnio() << "\n";
-                            cout << "Tamano: " << foto->getTamano()
-                                 << " bytes\n";
-                            cout << "Likes: " << foto->getLikes() << "\n";
+                        if (foto == nullptr) {
+                            cout << "No se pudo acceder a la foto.\n";
+                            break;
+                        }
+
+                        cout << "\n================================\n";
+                        cout << "Album: " << albumSeleccionado->getNombre() << "\n";
+                        cout << "Foto " << indiceFoto + 1
+                             << " de " << cantidadFotos << "\n";
+                        cout << "Archivo: " << foto->getNombreArchivo() << "\n";
+                        cout << "Fecha de captura: "
+                             << foto->getFechaCap().getDia() << "/"
+                             << foto->getFechaCap().getMes() << "/"
+                             << foto->getFechaCap().getAnio() << "\n";
+                        cout << "Tamano: " << foto->getTamano() << " bytes\n";
+                        cout << "Likes: " << foto->getLikes() << "\n";
+                        cout << "================================\n";
+
+                        cout << "1) Foto siguiente\n";
+                        cout << "2) Foto anterior\n";
+                        cout << "3) Salir del visor\n";
+                        cout << "Selecciona una opcion >> ";
+                        cin >> opcionFoto;
+
+                        switch (opcionFoto) {
+                        case 1:
+                            indiceFoto = (indiceFoto + 1) % cantidadFotos;
+                            break;
+
+                        case 2:
+                            if (indiceFoto == 0) {
+                                indiceFoto = cantidadFotos - 1;
+                            } else {
+                                indiceFoto--;
+                            }
+                            break;
+
+                        case 3:
+                            cout << "Saliendo del visor de fotos.\n";
+                            break;
+
+                        default:
+                            cout << "Opcion no valida.\n";
+                            break;
                         }
                     }
 
                     break;
                 }
+
 
                 default:
                     cout << "Ingrese una opcion valida.\n";

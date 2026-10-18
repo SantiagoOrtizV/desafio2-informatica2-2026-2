@@ -32,6 +32,7 @@ public:
     bool setDia(unsigned short int d);
     bool setMes(unsigned short int m);
     bool setAnio(unsigned short int a);
+    bool setFecha(const string& f);
 
     // Operaciones
     bool esValida() const;

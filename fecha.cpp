@@ -20,18 +20,24 @@ Fecha::Fecha(unsigned short int d, unsigned short int m,
 
 // Constructor desde texto: DD/MM/AAAA
 Fecha::Fecha(const string& f) : dia(1), mes(1), anio(2000) {
+    setFecha(f);
+}
+
+
+// Implementacion setfecha
+
+bool Fecha::setFecha(const string& f) {
     if (f.size() != 10 || f[2] != '/' || f[5] != '/') {
-        return;
+        return false;
     }
 
-    // Verificar que los demás caracteres sean dígitos.
     for (unsigned int i = 0; i < f.size(); i++) {
         if (i == 2 || i == 5) {
             continue;
         }
 
         if (f[i] < '0' || f[i] > '9') {
-            return;
+            return false;
         }
     }
 
@@ -47,20 +53,21 @@ Fecha::Fecha(const string& f) : dia(1), mes(1), anio(2000) {
         (f[8] - '0') * 10 +
         (f[9] - '0');
 
-    if (a == 0 || m < 1 || m > 12) {
-        return;
+    // Validamos en un objeto temporal para no alterar
+    // la fecha actual si la nueva fecha es incorrecta.
+    Fecha candidata;
+    candidata.dia = d;
+    candidata.mes = m;
+    candidata.anio = a;
+
+    if (!candidata.esValida()) {
+        return false;
     }
 
-    dia = d;
-    mes = m;
-    anio = a;
-
-    if (!esValida()) {
-        dia = 1;
-        mes = 1;
-        anio = 2000;
-    }
+    *this = candidata;
+    return true;
 }
+
 
 // Constructor de copia
 Fecha::Fecha(const Fecha& otra)

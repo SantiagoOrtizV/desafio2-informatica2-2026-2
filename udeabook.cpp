@@ -1,4 +1,6 @@
 #include "udeabook.h"
+#include "album.h"
+#include "foto.h"
 #include "fecha.h"
 #include "usuario.h"
 #include <fstream>
@@ -86,6 +88,66 @@ void UdeaBook::cargaUsuarios(){
     archivo.close();
 }
 
+
+void UdeaBook::cargaAlbumes() {
+    ifstream archivo("albumes.txt");
+
+    if (!archivo.is_open()) {
+        cout << "No se encontro albumes.txt. Se iniciara sin albumes."
+             << endl;
+        return;
+    }
+
+    string linea;
+
+    while (getline(archivo, linea)) {
+        if (linea.empty()) {
+            continue;
+        }
+
+        string campos[5];
+        separarCampos(linea, campos);
+
+        try {
+            unsigned int indiceUsuario =
+                static_cast<unsigned int>(stoi(campos[0]));
+
+            string nombreAlbum = campos[1];
+
+            unsigned int privacidad =
+                static_cast<unsigned int>(stoi(campos[2]));
+
+            // Verificar que el propietario exista.
+            if (indiceUsuario == 0 ||
+                indiceUsuario > cantidadUsuarios) {
+                continue;
+            }
+
+            // Verificar que la privacidad sea valida.
+            if (privacidad > Album::AMIGOS) {
+                continue;
+            }
+
+            Album* nuevoAlbum = new Album(
+                nombreAlbum,
+                indiceUsuario,
+                static_cast<unsigned char>(privacidad)
+                );
+
+            usuarios[indiceUsuario - 1].agregarAlbum(nuevoAlbum);
+
+        } catch (...) {
+            // Ignorar registros con datos numericos invalidos.
+            continue;
+        }
+    }
+
+    archivo.close();
+    cout << "Albumes cargados exitosamente." << endl;
+}
+
+
+
 unsigned int UdeaBook::buscarUsuario(const string usuario){
     unsigned int cont = 0;
     while((cont<cantidadUsuarios)&&(usuario!=(usuarios[cont].getNombre()))){
@@ -117,4 +179,218 @@ Usuario* UdeaBook::getUsuarioActual() {
 
 const Usuario* UdeaBook::getUsuarioActual() const {
     return usuarioActual;
+}
+
+
+bool UdeaBook::guardarAlbumes() const {
+    ofstream archivo("albumes.txt");
+
+    if (!archivo.is_open()) {
+        cout << "No se pudo abrir albumes.txt para guardar.\n";
+        return false;
+    }
+
+    for (unsigned int i = 0; i < cantidadUsuarios; i++) { //recorremos todos los usuarios
+        const Usuario& usuario = usuarios[i];
+
+        for (unsigned int j = 0;
+             j < usuario.cantidadAlbumes(); j++) { //recorremos todos los albumes de todos los usuarios, no solo el que inicio sesion
+
+            const Album* album = usuario.obtenerAlbum(j);
+
+            if (album == nullptr) {
+                continue;
+            }
+
+            archivo << album->getIndicePropietario() << ';'
+                    << album->getNombre() << ';'
+                    << static_cast<unsigned int>(
+                           album->getPrivacidad())
+                    << '\n';
+        }
+    }
+
+    archivo.close();
+
+    if (!archivo) {
+        cout << "Error al guardar los albumes.\n";
+        return false;
+    }
+
+    return true;
+}
+
+
+string fechaComoTexto(const Fecha& fecha) { //funcion que formatea la fecha para poderla escribir en archivo
+    string dia = to_string(fecha.getDia());
+    string mes = to_string(fecha.getMes());
+    string anio = to_string(fecha.getAnio());
+
+    if (dia.size() < 2) {
+        dia = "0" + dia;
+    }
+
+    if (mes.size() < 2) {
+        mes = "0" + mes;
+    }
+
+    while (anio.size() < 4) {
+        anio = "0" + anio;
+    }
+
+    return dia + "/" + mes + "/" + anio;
+}
+
+
+
+bool UdeaBook::guardarFotos() const {
+    ofstream archivo("fotos.txt");
+
+    if (!archivo.is_open()) {
+        cout << "No se pudo abrir fotos.txt para guardar.\n";
+        return false;
+    }
+
+    for (unsigned int i = 0; i < cantidadUsuarios; i++) { //recorremos los usuarios
+        const Usuario& usuario = usuarios[i];
+
+        for (unsigned int j = 0;
+             j < usuario.cantidadAlbumes(); j++) { //para cada usuario miramos todos los albumes que tiene
+
+            const Album* album = usuario.obtenerAlbum(j);
+
+            if (album == nullptr) {
+                continue;
+            }
+
+            for (unsigned int k = 0;
+                 k < album->cantidadFotos(); k++) {
+
+                const Foto* foto = album->obtenerFoto(k); //para cada album obtenemos sus fotos
+
+                if (foto == nullptr) {
+                    continue;
+                }
+
+                archivo << usuario.getIndice() << ';'
+                        << j << ';'
+                        << foto->getNombreArchivo() << ';'
+                        << fechaComoTexto(foto->getFechaCap()) << ';'
+                        << foto->getTamano() << ';'
+                        << foto->getLikes() << '\n';
+            }
+        }
+    }
+
+    archivo.close();
+
+    if (!archivo) {
+        cout << "Error al guardar las fotos.\n";
+        return false;
+    }
+
+    return true;
+}
+
+
+
+void UdeaBook::cargaFotos() {
+    ifstream archivo("fotos.txt");
+
+    if (!archivo.is_open()) {
+        cout << "No se encontro fotos.txt. Se iniciara sin fotos."
+             << endl;
+        return;
+    }
+
+    string linea;
+
+    while (getline(archivo, linea)) {
+        if (linea.empty()) {
+            continue;
+        }
+
+        string campos[6];
+        unsigned int campo = 0;
+
+        // Separar los seis campos de la linea.
+        for (unsigned int i = 0;
+             i < linea.length() && campo < 6;
+             i++) {
+            if (linea[i] == ';') {
+                campo++;
+            } else {
+                campos[campo] += linea[i];
+            }
+        }
+
+        // Si no hay exactamente seis campos, ignorar la linea.
+        if (campo != 5) {
+            continue;
+        }
+
+        try {
+            unsigned int indiceUsuario =
+                static_cast<unsigned int>(stoi(campos[0]));
+
+            unsigned int indiceAlbum =
+                static_cast<unsigned int>(stoi(campos[1]));
+
+            string nombreArchivo = campos[2];
+
+            Fecha fechaCaptura;
+            if (!fechaCaptura.setFecha(campos[3])) {
+                continue;
+            }
+
+            unsigned long long tamano = stoull(campos[4]);
+
+            unsigned int likes =
+                static_cast<unsigned int>(stoul(campos[5]));
+
+            // Comprobar que exista el usuario.
+            if (indiceUsuario == 0 ||
+                indiceUsuario > cantidadUsuarios) {
+                continue;
+            }
+
+            Usuario* usuario = &usuarios[indiceUsuario - 1];
+
+            // Comprobar que exista el album.
+            if (indiceAlbum >= usuario->cantidadAlbumes()) {
+                continue;
+            }
+
+            Album* album = usuario->obtenerAlbum(indiceAlbum);
+
+            if (album == nullptr) {
+                continue;
+            }
+
+            Foto* nuevaFoto = new Foto(
+                fechaCaptura,
+                tamano,
+                nombreArchivo,
+                likes
+                );
+
+            album->agregarFoto(nuevaFoto);
+
+        } catch (...) {
+            // Ignorar registros con datos numericos invalidos.
+            continue;
+        }
+    }
+
+    archivo.close();
+    cout << "Fotos cargadas exitosamente." << endl;
+}
+
+
+
+bool UdeaBook::guardarDatos() const {
+    bool albumesGuardados = guardarAlbumes();
+    bool fotosGuardadas = guardarFotos();
+
+    return albumesGuardados && fotosGuardadas;
 }

@@ -1,11 +1,17 @@
+
 #include "funciones.h"
 #include "udeabook.h"
 #include <iostream>
 
-int main()
-{
+using namespace std;
 
+int main() {
     UdeaBook sistema;
+
+    // Cargar los datos en el orden correcto.
+    sistema.cargaUsuarios();
+    sistema.cargaAlbumes();
+    sistema.cargaFotos();
 
     bool salirPrograma = false;
 
@@ -23,20 +29,13 @@ int main()
             menu(sistema);
         }
     }
-    return 0;
 
-    /* MENU DE SANTI
-
-    bool salirPrograma, salirInicio;
-    UdeaBook sistema;
-    salirPrograma = inicio();
-    while(!salirPrograma){
-        salirInicio = inicio_sesion(sistema);
-        salirInicio =! salirInicio;
-        if (!salirInicio){
-            cout << "Inicio Correcto" << endl;
-        }
-        salirPrograma = inicio();
+    // Guardar los cambios antes de terminar
+    if (sistema.guardarDatos()) {
+        cout << "Datos guardados correctamente." << endl;
+    } else {
+        cout << "Error al guardar los datos." << endl;
     }
-*/
+
+    return 0;
 }
