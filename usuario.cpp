@@ -1,5 +1,6 @@
 #include "usuario.h"
 #include "album.h"
+#include "mensaje.h"
 
 Usuario::Usuario()
     : nombre("0"),
@@ -29,29 +30,38 @@ Usuario::Usuario(const Usuario& otro)
     numeroPais(otro.numeroPais),
     fechaInscripcion(otro.fechaInscripcion),
     indiceUsuario(otro.indiceUsuario),
-    albumes() { //se iniciliza album como una lista vacia
-
-    for (unsigned int i = 0; i < otro.albumes.tamano(); i++) { //recorremos albumes del usuario original
+    albumes(),
+    enviados(), //no copiamos los mensajes porque dos objetos Usuario pueden quedar apuntando
+                //a un mismo objeto mensaje creyendo que son propietarios
+    recibidos()
+{
+    for (unsigned int i = 0; i < otro.albumes.tamano(); i++) {
         if (otro.albumes[i] != nullptr) {
-            Album* copia = new Album(*otro.albumes[i]); //creamos un album nuevo y guardamos el puntero a ese nuevo album
-            albumes.agregar(copia);
+            albumes.agregar(new Album(*otro.albumes[i]));
         }
     }
 }
 
 // Operador de asignación
 Usuario& Usuario::operator=(const Usuario& otro) {
-    if (this != &otro) { //asigna tambien al ususario un album debidamente copiado
-
-        // Liberar los álbumes que ya pertenecen a este usuario.
+    if (this != &otro) {
+        // Liberar los albumes actuales
         for (unsigned int i = 0; i < albumes.tamano(); i++) {
             delete albumes[i];
         }
 
-        // Vaciar la lista de punteros.
-        albumes = Lista<Album*>();
+        // Liberar los mensajes recibidos actuales
+        for (unsigned int i = 0; i < recibidos.tamano(); i++) {
+            delete recibidos[i];
+        }
 
-        // Copiar los atributos sencillos.
+        // Las listas de punteros no propietarios se limpian sin borrar
+        // los objetos a los que apuntan
+        albumes = Lista<Album*>();
+        enviados = Lista<Mensaje*>();
+        recibidos = Lista<Mensaje*>();
+
+        // Copiar los atributos basicos
         nombre = otro.nombre;
         clave = otro.clave;
         ciudad = otro.ciudad;
@@ -59,11 +69,10 @@ Usuario& Usuario::operator=(const Usuario& otro) {
         fechaInscripcion = otro.fechaInscripcion;
         indiceUsuario = otro.indiceUsuario;
 
-        // Crear copias independientes de los álbumes.
+        // Copiar profundamente los albumes
         for (unsigned int i = 0; i < otro.albumes.tamano(); i++) {
             if (otro.albumes[i] != nullptr) {
-                Album* copia = new Album(*otro.albumes[i]);
-                albumes.agregar(copia);
+                albumes.agregar(new Album(*otro.albumes[i]));
             }
         }
     }
@@ -72,11 +81,19 @@ Usuario& Usuario::operator=(const Usuario& otro) {
 }
 
 // Destructor
+
 Usuario::~Usuario() {
-    for (unsigned int i = 0; i < albumes.tamano(); i++) {
-        delete albumes[i]; //debe liberarse así porque albumes es un objeto de tipo Lista<Album*>, no un simple puntero a una lista
-                            //liberamos objetos album a los que apunta
+    // El usuario es propietario de sus albumes
+    for (unsigned int i = 0; i < albumes.tamano(); i++) { //debe liberarse así porque albumes es un objeto de tipo Lista<Album*>
+    //no un simple puntero a una lista, liberamos objetos album a los que apunta
+        delete albumes[i];
     }
+
+    // El usuario receptor es propietario de sus mensajes recibidos
+    for (unsigned int i = 0; i < recibidos.tamano(); i++) {
+        delete recibidos[i];
+    }
+    //no borramos mensjaes enviados, pertencen al receptor
 }
 
 
@@ -174,4 +191,97 @@ bool Usuario::existeAlbum(const string& nombre) const {
     }
 
     return false;
+}
+
+bool Usuario::registrarEnviado(Mensaje* mensaje) {
+    if (mensaje == nullptr) {
+        return false;
+    }
+
+    for (unsigned int i = 0; i < enviados.tamano(); i++) {
+        if (enviados[i] == mensaje) {
+            return false;
+        }
+    }
+
+    enviados.agregar(mensaje);
+    return true;
+}
+
+bool Usuario::registrarRecibido(Mensaje* mensaje) {
+    if (mensaje == nullptr) {
+        return false;
+    }
+
+    for (unsigned int i = 0; i < recibidos.tamano(); i++) {
+        if (recibidos[i] == mensaje) {
+            return false;
+        }
+    }
+
+    recibidos.agregar(mensaje);
+    return true;
+}
+
+bool Usuario::retirarUltimoEnviado(Mensaje* mensaje) { //Compara el último puntero antes de retirarlo
+    //para evitar eliminar accidentalmente otro registro
+    unsigned int cantidad = enviados.tamano();
+
+    if (cantidad == 0 || enviados[cantidad - 1] != mensaje) {
+        return false;
+    }
+
+    return enviados.quitarUltimo();
+}
+
+bool Usuario::retirarUltimoRecibido(Mensaje* mensaje) { //Compara el último puntero antes de retirarlo
+    //para evitar eliminar accidentalmente otro registro
+    unsigned int cantidad = recibidos.tamano();
+
+    if (cantidad == 0 || recibidos[cantidad - 1] != mensaje) {
+        return false;
+    }
+
+    return recibidos.quitarUltimo();
+}
+
+
+unsigned int Usuario::cantidadEnviados() const {
+    return enviados.tamano();
+}
+
+unsigned int Usuario::cantidadRecibidos() const {
+    return recibidos.tamano();
+}
+
+Mensaje* Usuario::obtenerEnviado(unsigned int indice) {
+    if (indice >= enviados.tamano()) {
+        return nullptr;
+    }
+
+    return enviados[indice];
+}
+
+const Mensaje* Usuario::obtenerEnviado(unsigned int indice) const {
+    if (indice >= enviados.tamano()) {
+        return nullptr;
+    }
+
+    return enviados[indice];
+}
+
+Mensaje* Usuario::obtenerRecibido(unsigned int indice) {
+    if (indice >= recibidos.tamano()) {
+        return nullptr;
+    }
+
+    return recibidos[indice];
+}
+
+const Mensaje* Usuario::obtenerRecibido(unsigned int indice) const {
+    if (indice >= recibidos.tamano()) {
+        return nullptr;
+    }
+
+    return recibidos[indice];
 }

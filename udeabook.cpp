@@ -3,6 +3,7 @@
 #include "foto.h"
 #include "fecha.h"
 #include "usuario.h"
+#include "mensaje.h"
 #include <fstream>
 #include <iostream>
 #include <filesystem>
@@ -393,4 +394,55 @@ bool UdeaBook::guardarDatos() const {
     bool fotosGuardadas = guardarFotos();
 
     return albumesGuardados && fotosGuardadas;
+}
+
+bool UdeaBook::enviarMensaje(unsigned int indiceReceptor,
+                             const string& texto,
+                             const Fecha& fechaEnvio) {
+    // Verificar que haya un usuario emisor con sesion iniciada
+    if (usuarioActual == nullptr) {
+        return false;
+    }
+
+    // Verificar que el indice del receptor sea valido
+    if (indiceReceptor == 0 ||
+        indiceReceptor > cantidadUsuarios) {
+        return false;
+    }
+
+    // Obtener el receptor: los indices de usuario empiezan en 1
+    Usuario* receptor = &usuarios[indiceReceptor - 1];
+
+    // Un usuario no puede enviarse mensajes a si mismo
+    if (receptor == usuarioActual) {
+        return false;
+    }
+
+    // Validar el texto y la fecha antes de crear el mensaje
+    if (texto.empty() || !fechaEnvio.esValida()) {
+        return false;
+    }
+
+    // Crear un unico mensaje
+    Mensaje* mensaje = new Mensaje(
+        usuarioActual->getIndice(),
+        receptor->getIndice(),
+        texto,
+        fechaEnvio
+        );
+
+    // El receptor sera el propietario del mensaje
+    if (!receptor->registrarRecibido(mensaje)) {
+        delete mensaje;
+        return false;
+    }
+
+    // El emisor guarda un puntero no propietario
+    if (!usuarioActual->registrarEnviado(mensaje)) {
+        receptor->retirarUltimoRecibido(mensaje);
+        delete mensaje;
+        return false;
+    }
+
+    return true;
 }

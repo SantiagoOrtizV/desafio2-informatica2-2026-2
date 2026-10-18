@@ -100,6 +100,16 @@ public:
         return *this;
     }
 
+    bool quitarUltimo() { //funcion por si falla el envio de un mensaje, quitamos ese puntero del Usuario emisor
+        if (cantidad == 0) {
+            return false;
+        }
+
+        cantidad--;
+        return true;
+    }
+
+
     // Destructor
     ~Lista() {
         delete[] datos;

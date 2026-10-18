@@ -8,6 +8,7 @@
 using namespace std;
 
 class Album; //declaracion adelantada, es una clase pero aún no se conocen atributos ni metodos
+class Mensaje; //declaracion adelantada, es una clase pero aún no se conocen atributos ni metodos
 
 class Usuario {
 private:
@@ -18,6 +19,9 @@ private:
     Fecha fechaInscripcion;
     unsigned int indiceUsuario;
     Lista<Album*> albumes; //cada usuario es dueño de sus albumes (puntero a objetos album)
+
+    Lista<Mensaje*> enviados;
+    Lista<Mensaje*> recibidos;
 
 public:
     Usuario();
@@ -37,6 +41,24 @@ public:
     const Album* obtenerAlbum(unsigned int indice) const;
 
     unsigned int cantidadAlbumes() const;
+
+
+    // Metodos para gestionar mensajes
+    bool registrarEnviado(Mensaje* mensaje);
+    bool registrarRecibido(Mensaje* mensaje);
+
+    bool retirarUltimoEnviado(Mensaje* mensaje);
+    bool retirarUltimoRecibido(Mensaje* mensaje);
+
+    unsigned int cantidadEnviados() const;
+    unsigned int cantidadRecibidos() const;
+
+    Mensaje* obtenerEnviado(unsigned int indice);
+    const Mensaje* obtenerEnviado(unsigned int indice) const;
+
+    Mensaje* obtenerRecibido(unsigned int indice);
+    const Mensaje* obtenerRecibido(unsigned int indice) const;
+
 
     //Getters const para solo consultar
     string getNombre() const;

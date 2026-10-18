@@ -1,6 +1,7 @@
 #ifndef UDEABOOK_H
 #define UDEABOOK_H
 #include "usuario.h"
+#include "fecha.h"
 #include <string>
 
 using namespace std;
@@ -24,6 +25,8 @@ public:
 
     bool iniciarSesion(const string&, const string&);
     unsigned int buscarUsuario(const string);
+
+    bool enviarMensaje(unsigned int indiceReceptor, const string& texto, const Fecha& fechaEnvio); //y el emisor será usuarioActual
 
     //getters para tener acceso al puntero del usuario que inicio sesion
     Usuario* getUsuarioActual();
