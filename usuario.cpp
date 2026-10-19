@@ -287,3 +287,33 @@ const Mensaje* Usuario::obtenerRecibido(unsigned int indice) const {
 
     return recibidos[indice];
 }
+
+unsigned long int Usuario::memoriaUsada() const {
+    unsigned long int memoria = sizeof(*this);
+
+    // Memoria adicional reservada para las cadenas
+    memoria += nombre.capacity() * sizeof(char);
+    memoria += clave.capacity() * sizeof(char);
+    memoria += ciudad.capacity() * sizeof(char);
+
+    // Memoria reservada para los arreglos internos de las listas
+    memoria += albumes.memoriaReservada();
+    memoria += enviados.memoriaReservada();
+    memoria += recibidos.memoriaReservada();
+
+    // Memoria de los álbumes y sus fotos
+    for (unsigned int i = 0; i < albumes.tamano(); i++) {
+        if (albumes[i] != nullptr) {
+            memoria += albumes[i]->memoriaUsada();
+        }
+    }
+
+    // Los mensajes recibidos son propiedad de este usuario
+    for (unsigned int i = 0; i < recibidos.tamano(); i++) {
+        if (recibidos[i] != nullptr) {
+            memoria += recibidos[i]->memoriaUsada();
+        }
+    }
+
+    return memoria;
+}

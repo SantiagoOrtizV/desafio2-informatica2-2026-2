@@ -61,6 +61,11 @@ public:
         return cantidad;
     }
 
+    unsigned long int memoriaReservada() const {
+        return static_cast<unsigned long int>(capacidad) //calcular espacio del arreglo de punteros
+        * sizeof(T);
+    }
+
     // Constructor de copia
     Lista(const Lista& otra)
         : datos(nullptr),

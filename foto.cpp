@@ -22,6 +22,11 @@ Foto::Foto(const Foto& otra) {
     likes = otra.likes;
 }
 
+unsigned long int Foto::memoriaUsada() const {
+    return sizeof(*this) //tamaño objeto Foto, incluyendo atributos
+    + nombreArchivo.capacity() * sizeof(char); //estimacion espacio reservado para almacenar el nombre del archivo
+}
+
 Foto::~Foto() {
 }
 

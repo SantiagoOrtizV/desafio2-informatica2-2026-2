@@ -75,6 +75,8 @@ public:
     void setPais(unsigned char nP);
     void setFecha(const Fecha& fI);
     void setIndice(unsigned int iU);
+
+    unsigned long int memoriaUsada() const;
 };
 
 #endif

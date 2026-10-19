@@ -40,6 +40,8 @@ public:
 
     void setNombre(string nombre);
     void setPrivacidad(unsigned char privacidad);
+
+    unsigned long int memoriaUsada() const;
 };
 
 #endif // ALBUM_H

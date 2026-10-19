@@ -55,6 +55,25 @@ void Album::agregarFoto(Foto* foto) {
     fotos.agregar(foto);
 }
 
+unsigned long int Album::memoriaUsada() const {
+    unsigned long int memoria = sizeof(*this);
+
+    // Memoria reservada para el nombre del álbum
+    memoria += nameAlbum.capacity() * sizeof(char);
+
+    // Memoria reservada para el arreglo interno de punteros
+    memoria += fotos.memoriaReservada();
+
+    // Memoria de cada objeto Foto
+    for (unsigned int i = 0; i < fotos.tamano(); i++) {
+        if (fotos[i] != nullptr) {
+            memoria += fotos[i]->memoriaUsada();
+        }
+    }
+
+    return memoria;
+}
+
 
 // Operador de asignación con copia profunda
 Album& Album::operator=(const Album& otro) {

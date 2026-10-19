@@ -35,6 +35,8 @@ public:
     void setTamano(unsigned long long tam);
     void setNombreArchivo(string nombre);
     void setLikes(unsigned int cantLikes);
+
+    unsigned long int memoriaUsada() const;
 };
 
 #endif // FOTO_H

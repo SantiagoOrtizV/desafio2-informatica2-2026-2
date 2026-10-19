@@ -87,6 +87,7 @@ void menu(UdeaBook& sistema) {
         cout << "          Bienvenido a UdeaBook\n";
         cout << "          1) Administrar albumes\n";
         cout << "          2) Administrar mensajes\n";
+        cout << "          3) Ver memoria utilizada\n";
         cout << "          0) Cerrar sesion\n";
         cout << "          >> ";
 
@@ -275,6 +276,7 @@ void menu(UdeaBook& sistema) {
                 cout << "          1) Enviar mensaje\n";
                 cout << "          2) Ver mensajes recibidos\n";
                 cout << "          3) Ver mensajes enviados\n";
+                cout << "          4) Filtrar mensajes por fecha\n";
                 cout << "          0) Volver\n";
                 cout << "          >> ";
 
@@ -298,14 +300,25 @@ void menu(UdeaBook& sistema) {
                     cout << "Escribe tu mensaje >> ";
                     getline(cin, texto);
 
+
                     if (sistema.enviarMensaje(nombreReceptor, texto)) {
-                        cout << "Mensaje enviado correctamente.\n";
+
+                        if (sistema.guardarMensajes()) {
+                            cout << "Mensaje enviado y guardado correctamente.\n";
+                        } else {
+                            cout << "El mensaje se envio, pero no se pudo guardar "
+                                 << "en el archivo permanente.\n";
+                            cout << "El mensaje sigue disponible en memoria, "
+                                 << "pero podria perderse al cerrar el programa.\n";
+                        }
+
                     } else {
                         cout << "No se pudo enviar el mensaje.\n";
                         cout << "Verifica que el destinatario exista, "
                              << "que no seas tu mismo y que el mensaje "
                              << "no este vacio.\n";
                     }
+
 
                     break;
                 }
@@ -358,12 +371,92 @@ void menu(UdeaBook& sistema) {
                     break;
                 }
 
+                case 4: {
+                    string textoFechaInicio;
+                    string textoFechaFin;
+
+                    cin.ignore(10000, '\n');
+
+                    cout << "Fecha inicial (DD/MM/AAAA) >> ";
+                    getline(cin, textoFechaInicio);
+
+                    cout << "Fecha final (DD/MM/AAAA) >> ";
+                    getline(cin, textoFechaFin);
+
+                    Fecha fechaInicio;
+                    Fecha fechaFin;
+
+                    if (!fechaInicio.setFecha(textoFechaInicio) ||
+                        !fechaFin.setFecha(textoFechaFin)) {
+                        cout << "Una de las fechas ingresadas no es valida.\n";
+                        break;
+                    }
+
+                    if (!(fechaInicio <= fechaFin)) {
+                        cout << "La fecha inicial no puede ser posterior "
+                             << "a la fecha final.\n";
+                        break;
+                    }
+
+                    unsigned int encontrados = 0;
+                    unsigned int iteraciones = 0;
+
+                    cout << "\n--- Mensajes recibidos en el rango ---\n";
+
+                    for (unsigned int i = 0;
+                         i < usuario->cantidadRecibidos(); i++) {
+
+                        iteraciones++;
+
+                        Mensaje* mensaje = usuario->obtenerRecibido(i);
+
+                        if (mensaje == nullptr) {
+                            continue;
+                        }
+
+                        const Fecha& fechaMensaje = mensaje->getFechaEnvio();
+
+                        if (fechaInicio <= fechaMensaje &&
+                            fechaMensaje <= fechaFin) {
+
+                            mensaje->marcarComoLeido();
+                            mensaje->mostrar();
+                            cout << "-----------------------------\n";
+                            encontrados++;
+                        }
+                    }
+                    cout << "Iteraciones realizadas: " << iteraciones << "\n";
+
+                    if (encontrados == 0) {
+                        cout << "No se encontraron mensajes en ese rango de fechas.\n";
+                    } else {
+                        cout << "Total de mensajes encontrados: "
+                             << encontrados << "\n";
+
+                    }
+
+                    break;
+                }
+
 
                 default:
                     cout << "Ingrese una opcion valida.\n";
                     break;
                 }
             }
+
+            break;
+        }
+
+        case 3: {
+            unsigned long int memoria = sistema.memoriaUsada();
+
+            cout << "\n--- Memoria estimada de UdeaBook ---\n";
+            cout << "Memoria utilizada: "
+                 << memoria << " bytes\n";
+            cout << "Memoria utilizada: "
+                 << static_cast<double>(memoria) / 1024.0
+                 << " KB\n";
 
             break;
         }
@@ -375,107 +468,5 @@ void menu(UdeaBook& sistema) {
     }
 }
 
-
-/*
-
-void menu(bool& inicio_exitoso){
-    //void visualizacion_superamigos()
-    while(inicio_exitoso){
-        cout << "                                                           " << endl;
-        cout << "                    Bienvenido a UdeaBook                  " << endl;
-        cout << "                                                           " << endl;
-        cout << "                                                           " << endl;
-        cout << "          1) Administrar amistades                         " << endl;
-        cout << "          2) Visita perfil amigo                           " << endl;
-        cout << "          3) Sugerencias de amistad                        " << endl;
-        cout << "          4) Administracion de mensajes                    " << endl;
-        cout << "          5) Ver otros SuperAmigos                         " << endl;
-        cout << "                                                           " << endl;
-        cout << "          0) Cerrar Sesion                                 " << endl;
-        cout << "                                                           " << endl;
-        cout << "          Su opcion >> ";
-
-        unsigned short int opc_menu;
-        cin >> opc_menu;
-        while(opc_menu>5){
-            cout << "          Ingrese una opcion valida >> ";
-            cin >> opc_menu;
-        }
-        switch(opc_menu){
-
-        case 0: //cierre sesion
-            inicio_exitoso = false;
-            break;
-
-        case 1: //administrar amistades
-            cout << "                                                           " << endl;
-            cout << "          1) Enviar solicitud de amistad                   " << endl;
-            cout << "          2) Aceptar solicitudes de amistad                " << endl;
-            cout << "                                                           " << endl;
-            cout << "          0) Salir                                         " << endl;
-            cout << "                                                           " << endl;
-            cout << "          Su opcion >> ";
-            unsigned short int opc_admin;
-            cin >> opc_admin;
-            while(opc_admin>2){
-                cout << "                                                           " << endl;
-                cout << "          Ingrese una opcion valida >> ";
-                cin >> opc_admin;
-            }
-            if(opc_admin == 0){
-                break;
-            }
-            switch(opc_admin){
-            case 1:
-                // enviar solicitud de amistad
-                break;
-            case 2:
-                // aceptar solicitud de amistad
-                break;
-            }
-            break;
-
-        case 2: //visitar el perfil de un amigo
-            break;
-
-        case 3: //ver sugerencias de amistad
-            break;
-
-        case 4: //administrar mensajes
-            cout << "                                                           " << endl;
-            cout << "          1) Enviar mensaje                                " << endl;
-            cout << "          2) Leer nuevos mensajes                          " << endl;
-            cout << "          3) Buscar mensajes por rango de fechas           " << endl;
-            cout << "                                                           " << endl;
-            cout << "          0) Salir                                         " << endl;
-            cout << "                                                           " << endl;
-            cout << "          Su opcion >> ";
-            unsigned short int opc_mensajes;
-            cin >> opc_mensajes;
-            while(opc_mensajes>3){
-                cout << "                                                           " << endl;
-                cout << "          Ingrese una opcion valida >> ";
-                cin >> opc_mensajes;
-            }
-            if(opc_mensajes == 0){
-                break;
-            }
-            switch(opc_mensajes){
-            case 1:
-                // enviar mensaje
-                break;
-            case 2:
-                // leer nuevos mensajes
-                break;
-            case 3:
-                // buscar mensajes por rango de fecha
-                break;
-            }
-            break;
-
-        case 5: //otros superamigos
-            break;
-        }
-    }
-}
-*/
+//sugerencias proximamente
+//error al sobreecribir los mensajes

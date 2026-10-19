@@ -38,6 +38,8 @@ public:
     UdeaBook(const UdeaBook&) = delete; //esto evita que se copie por error udeabook ya que sería peligroso por administrar memoria dinamica
     UdeaBook& operator=(const UdeaBook&) = delete;
 
+    unsigned long int memoriaUsada() const;
+
     ~UdeaBook();
 };
 

@@ -591,3 +591,13 @@ void UdeaBook::cargaMensajes() { //funcion que lee el archivo de los mensajes y 
 
     cout << "Mensajes cargados exitosamente.\n";
 }
+
+unsigned long int UdeaBook::memoriaUsada() const {
+    unsigned long int memoria = sizeof(*this);
+
+    for (unsigned int i = 0; i < cantidadUsuarios; i++) {
+        memoria += usuarios[i].memoriaUsada();
+    }
+
+    return memoria;
+}

@@ -5,6 +5,5 @@
 bool inicio();
 bool inicio_sesion(UdeaBook&);
 void menu(UdeaBook& sistema);
-//void menu(bool& inicio_exitoso);
 
 #endif
