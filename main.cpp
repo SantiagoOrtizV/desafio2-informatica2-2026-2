@@ -12,6 +12,7 @@ int main() {
     sistema.cargaUsuarios();
     sistema.cargaAlbumes();
     sistema.cargaFotos();
+    sistema.cargaMensajes();
 
     bool salirPrograma = false;
 

@@ -182,6 +182,7 @@ unsigned int Usuario::cantidadAlbumes() const {
     return albumes.tamano();
 }
 
+/*
 bool Usuario::existeAlbum(const string& nombre) const {
     for (unsigned int i = 0; i < albumes.tamano(); i++) {
         if (albumes[i] != nullptr &&
@@ -192,6 +193,7 @@ bool Usuario::existeAlbum(const string& nombre) const {
 
     return false;
 }
+*/
 
 bool Usuario::registrarEnviado(Mensaje* mensaje) {
     if (mensaje == nullptr) {

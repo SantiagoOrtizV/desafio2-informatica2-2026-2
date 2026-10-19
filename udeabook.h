@@ -23,10 +23,13 @@ public:
     bool guardarFotos() const;
     bool guardarDatos() const;
 
+    void cargaMensajes();
+    bool guardarMensajes() const;
+
     bool iniciarSesion(const string&, const string&);
     unsigned int buscarUsuario(const string);
 
-    bool enviarMensaje(unsigned int indiceReceptor, const string& texto, const Fecha& fechaEnvio); //y el emisor será usuarioActual
+    bool enviarMensaje(const string& nombreReceptor, const string& texto); //y el emisor será usuarioActual
 
     //getters para tener acceso al puntero del usuario que inicio sesion
     Usuario* getUsuarioActual();

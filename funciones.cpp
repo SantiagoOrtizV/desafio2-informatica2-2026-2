@@ -3,6 +3,7 @@
 #include "usuario.h"
 #include "album.h"
 #include "foto.h"
+#include "mensaje.h"
 #include <iostream>
 using namespace std;
 
@@ -85,6 +86,7 @@ void menu(UdeaBook& sistema) {
         cout << "\n";
         cout << "          Bienvenido a UdeaBook\n";
         cout << "          1) Administrar albumes\n";
+        cout << "          2) Administrar mensajes\n";
         cout << "          0) Cerrar sesion\n";
         cout << "          >> ";
 
@@ -109,10 +111,8 @@ void menu(UdeaBook& sistema) {
             while (!volver) {
                 cout << "\n";
                 cout << "          Administracion de albumes\n";
-                cout << "          1) Crear album\n";
-                cout << "          2) Ver mis albumes\n";
-                cout << "          3) Agregar foto a un album\n";
-                cout << "          4) Ver fotos de un album\n";
+                cout << "          1) Ver mis albumes\n";
+                cout << "          2) Ver fotos de un album\n";
                 cout << "          0) Volver\n";
                 cout << "          >> ";
 
@@ -125,44 +125,6 @@ void menu(UdeaBook& sistema) {
                     break;
 
                 case 1: {
-                    string nombre;
-                    unsigned int privacidad;
-
-                    cin.ignore(10000, '\n');
-
-                    cout << "Nombre del album >> ";
-                    getline(cin, nombre);
-
-                    if (usuario->existeAlbum(nombre)) {
-                        cout << "Ya tienes un album con ese nombre.\n";
-                        break;
-                    }
-
-                    cout << "Privacidad:\n";
-                    cout << "0) Publico\n";
-                    cout << "1) Privado\n";
-                    cout << "2) Solo amigos\n";
-                    cout << ">> ";
-                    cin >> privacidad;
-
-                    if (privacidad > Album::AMIGOS) {
-                        cout << "Privacidad no valida.\n";
-                        break;
-                    }
-
-                    Album* nuevoAlbum = new Album(
-                        nombre,
-                        usuario->getIndice(),
-                        static_cast<unsigned char>(privacidad)
-                        );
-
-                    usuario->agregarAlbum(nuevoAlbum);
-
-                    cout << "Album creado correctamente.\n";
-                    break;
-                }
-
-                case 2: {
                     unsigned int cantidad =
                         usuario->cantidadAlbumes();
 
@@ -188,93 +150,7 @@ void menu(UdeaBook& sistema) {
                     break;
                 }
 
-
-                case 3: {
-                    unsigned int cantidad = usuario->cantidadAlbumes();
-
-                    if (cantidad == 0) {
-                        cout << "Primero debes crear un album.\n";
-                        break;
-                    }
-
-                    cout << "\nTus albumes:\n";
-
-                    for (unsigned int i = 0; i < cantidad; i++) {
-                        const Album* album = usuario->obtenerAlbum(i);
-
-                        if (album != nullptr) {
-                            cout << i + 1 << ") " << album->getNombre() << "\n";
-                        }
-                    }
-
-                    unsigned int seleccion;
-                    cout << "Selecciona el album >> ";
-                    cin >> seleccion;
-
-                    if (seleccion == 0 || seleccion > cantidad) {
-                        cout << "Numero de album no valido.\n";
-                        break;
-                    }
-
-                    Album* albumSeleccionado = usuario->obtenerAlbum(seleccion - 1);
-
-                    if (albumSeleccionado == nullptr) {
-                        cout << "No se pudo acceder al album.\n";
-                        break;
-                    }
-
-                    string nombreArchivo;
-                    string fechaTexto;
-                    unsigned long long tamano;
-                    unsigned int likes;
-
-                    cin.ignore(100000, '\n');
-
-                    cout << "Nombre del archivo de la foto >> ";
-                    getline(cin, nombreArchivo);
-
-                    if (nombreArchivo.empty()) {
-                        cout << "El nombre del archivo no puede estar vacio.\n";
-                        break;
-                    }
-
-                    cout << "Fecha de captura (DD/MM/AAAA) >> ";
-                    getline(cin, fechaTexto);
-
-                    Fecha fechaCaptura;
-
-                    if (!fechaCaptura.setFecha(fechaTexto)) {
-                        cout << "La fecha ingresada no es valida.\n";
-                        break;
-                    }
-
-                    cout << "Tamano en bytes >> ";
-                    cin >> tamano;
-
-                    if (tamano == 0) {
-                        cout << "El tamano debe ser mayor que cero.\n";
-                        break;
-                    }
-
-                    cout << "Cantidad de likes >> ";
-                    cin >> likes;
-
-                    Foto* nuevaFoto = new Foto(
-                            Fecha(fechaTexto),
-                        tamano,
-                        nombreArchivo,
-                        likes
-                        );
-
-                    albumSeleccionado->agregarFoto(nuevaFoto);
-
-                    cout << "Foto agregada correctamente.\n";
-                    break;
-                }
-
-
-
-                case 4: {
+                case 2: {
                     unsigned int cantidad = usuario->cantidadAlbumes();
 
                     if (cantidad == 0) {
@@ -367,6 +243,115 @@ void menu(UdeaBook& sistema) {
                         default:
                             cout << "Opcion no valida.\n";
                             break;
+                        }
+                    }
+
+                    break;
+                }
+
+
+                default:
+                    cout << "Ingrese una opcion valida.\n";
+                    break;
+                }
+            }
+
+            break;
+        }
+
+        case 2:{
+            Usuario* usuario = sistema.getUsuarioActual();
+
+            if (usuario == nullptr) {
+                cout << "No hay un usuario con sesion activa.\n";
+                break;
+            }
+
+            bool volverMensajes = false;
+
+            while (!volverMensajes) {
+                cout << "\n";
+                cout << "          Administracion de mensajes\n";
+                cout << "          1) Enviar mensaje\n";
+                cout << "          2) Ver mensajes recibidos\n";
+                cout << "          3) Ver mensajes enviados\n";
+                cout << "          0) Volver\n";
+                cout << "          >> ";
+
+                unsigned short int opcionMensajes;
+                cin >> opcionMensajes;
+
+                switch (opcionMensajes) {
+                case 0:
+                    volverMensajes = true;
+                    break;
+
+                case 1: {
+                    string nombreReceptor;
+                    string texto;
+
+                    cin.ignore(10000, '\n');
+
+                    cout << "Nombre de usuario del destinatario >> ";
+                    getline(cin, nombreReceptor);
+
+                    cout << "Escribe tu mensaje >> ";
+                    getline(cin, texto);
+
+                    if (sistema.enviarMensaje(nombreReceptor, texto)) {
+                        cout << "Mensaje enviado correctamente.\n";
+                    } else {
+                        cout << "No se pudo enviar el mensaje.\n";
+                        cout << "Verifica que el destinatario exista, "
+                             << "que no seas tu mismo y que el mensaje "
+                             << "no este vacio.\n";
+                    }
+
+                    break;
+                }
+
+                case 2:{
+                    unsigned int cantidad = usuario->cantidadRecibidos();
+
+                    if (cantidad == 0) {
+                        cout << "No tienes mensajes recibidos.\n";
+                        break;
+                    }
+
+                    cout << "\n          Mensajes recibidos\n";
+
+                    for (unsigned int i = 0; i < cantidad; i++) {
+                        Mensaje* mensaje = usuario->obtenerRecibido(i);
+
+                        if (mensaje != nullptr) {
+                            mensaje->marcarComoLeido();
+
+                            cout << "\nMensaje " << i + 1 << "\n";
+                            mensaje->mostrar();
+                            cout << "-----------------------------\n";
+                        }
+                    }
+
+                    break;
+                }
+
+                case 3: {
+                    unsigned int cantidad = usuario->cantidadEnviados();
+
+                    if (cantidad == 0) {
+                        cout << "No tienes mensajes enviados.\n";
+                        break;
+                    }
+
+                    cout << "\n          Mensajes enviados\n";
+
+                    for (unsigned int i = 0; i < cantidad; i++) {
+                        const Mensaje* mensaje = usuario->obtenerEnviado(i);
+
+                        if (mensaje != nullptr) {
+                            cout << "\nMensaje " << i + 1 << "\n";
+                            mensaje->mostrar();
+                            cout << "-----------------------------\n";
                         }
                     }
 

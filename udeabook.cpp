@@ -8,6 +8,7 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
+#include <ctime>
 
 using namespace std;
 
@@ -149,17 +150,15 @@ void UdeaBook::cargaAlbumes() {
 
 
 
-unsigned int UdeaBook::buscarUsuario(const string usuario){
-    unsigned int cont = 0;
-    while((cont<cantidadUsuarios)&&(usuario!=(usuarios[cont].getNombre()))){
-        cont++;
+unsigned int UdeaBook::buscarUsuario(const string usuario){ //búsqueda lineal por nombre
+    for (unsigned int i = 0; i < cantidadUsuarios; i++) {
+        if (usuarios[i].getNombre() == usuario) {
+            return i + 1;
+        }
     }
-    cont++;
-    if(cont>cantidadUsuarios){
-        cont = 0;
-    }
-    return cont;
+    return 0;
 }
+
 
 bool UdeaBook::iniciarSesion(const string& nombre, const string&claveInput){
     unsigned int indiceAux = buscarUsuario(nombre);
@@ -183,6 +182,7 @@ const Usuario* UdeaBook::getUsuarioActual() const {
 }
 
 
+/*
 bool UdeaBook::guardarAlbumes() const {
     ofstream archivo("albumes.txt");
 
@@ -220,6 +220,7 @@ bool UdeaBook::guardarAlbumes() const {
 
     return true;
 }
+*/
 
 
 string fechaComoTexto(const Fecha& fecha) { //funcion que formatea la fecha para poderla escribir en archivo
@@ -243,7 +244,7 @@ string fechaComoTexto(const Fecha& fecha) { //funcion que formatea la fecha para
 }
 
 
-
+/*
 bool UdeaBook::guardarFotos() const {
     ofstream archivo("fotos.txt");
 
@@ -292,7 +293,7 @@ bool UdeaBook::guardarFotos() const {
 
     return true;
 }
-
+*/
 
 
 void UdeaBook::cargaFotos() {
@@ -390,40 +391,44 @@ void UdeaBook::cargaFotos() {
 
 
 bool UdeaBook::guardarDatos() const {
-    bool albumesGuardados = guardarAlbumes();
-    bool fotosGuardadas = guardarFotos();
-
-    return albumesGuardados && fotosGuardadas;
+    return guardarMensajes();
 }
 
-bool UdeaBook::enviarMensaje(unsigned int indiceReceptor,
-                             const string& texto,
-                             const Fecha& fechaEnvio) {
-    // Verificar que haya un usuario emisor con sesion iniciada
+
+bool UdeaBook::enviarMensaje(const string& nombreReceptor, const string& texto) {
     if (usuarioActual == nullptr) {
         return false;
     }
 
-    // Verificar que el indice del receptor sea valido
-    if (indiceReceptor == 0 ||
-        indiceReceptor > cantidadUsuarios) {
+    if (texto.empty()) {
         return false;
     }
 
-    // Obtener el receptor: los indices de usuario empiezan en 1
+    unsigned int indiceReceptor = buscarUsuario(nombreReceptor);
+
+    if (indiceReceptor == 0) {
+        return false;
+    }
+
     Usuario* receptor = &usuarios[indiceReceptor - 1];
 
-    // Un usuario no puede enviarse mensajes a si mismo
     if (receptor == usuarioActual) {
         return false;
     }
 
-    // Validar el texto y la fecha antes de crear el mensaje
-    if (texto.empty() || !fechaEnvio.esValida()) {
+    time_t ahora = time(nullptr);
+    tm* fechaLocal = localtime(&ahora);
+
+    if (fechaLocal == nullptr) {
         return false;
     }
 
-    // Crear un unico mensaje
+    Fecha fechaEnvio(
+        fechaLocal->tm_mday,
+        fechaLocal->tm_mon + 1,
+        fechaLocal->tm_year + 1900
+        );
+
     Mensaje* mensaje = new Mensaje(
         usuarioActual->getIndice(),
         receptor->getIndice(),
@@ -431,13 +436,11 @@ bool UdeaBook::enviarMensaje(unsigned int indiceReceptor,
         fechaEnvio
         );
 
-    // El receptor sera el propietario del mensaje
     if (!receptor->registrarRecibido(mensaje)) {
         delete mensaje;
         return false;
     }
 
-    // El emisor guarda un puntero no propietario
     if (!usuarioActual->registrarEnviado(mensaje)) {
         receptor->retirarUltimoRecibido(mensaje);
         delete mensaje;
@@ -445,4 +448,146 @@ bool UdeaBook::enviarMensaje(unsigned int indiceReceptor,
     }
 
     return true;
+}
+
+bool UdeaBook::guardarMensajes() const { //recorremos solo los mensajes recibidos porque cada uno
+    //tiene un solo receptor propietario, así evitamos guardar cada msj dos veces
+    ofstream archivo("mensajes.txt");
+
+    if (!archivo.is_open()) {
+        cout << "No se pudo abrir mensajes.txt para guardar.\n";
+        return false;
+    }
+
+    // Cada mensaje se guarda una sola vez, desde la lista
+    // de recibidos de su propietario.
+    for (unsigned int i = 0; i < cantidadUsuarios; i++) {
+        const Usuario& receptor = usuarios[i];
+
+        for (unsigned int j = 0;
+             j < receptor.cantidadRecibidos(); j++) {
+
+            const Mensaje* mensaje = receptor.obtenerRecibido(j);
+
+            if (mensaje == nullptr) {
+                continue;
+            }
+
+            archivo << mensaje->getIndiceEmisor() << ';'
+                    << mensaje->getIndiceReceptor() << ';'
+                    << fechaComoTexto(mensaje->getFechaEnvio()) << ';'
+                    << (mensaje->estaLeido() ? 1 : 0) << ';'
+                    << mensaje->getTexto() << '\n';
+        }
+    }
+
+    archivo.close();
+
+    if (!archivo) {
+        cout << "Error al guardar los mensajes.\n";
+        return false;
+    }
+
+    return true;
+}
+
+void UdeaBook::cargaMensajes() { //funcion que lee el archivo de los mensajes y los carga al sistema
+    ifstream archivo("mensajes.txt");
+
+    if (!archivo.is_open()) {
+        cout << "No se encontro mensajes.txt. "
+             << "Se iniciara sin mensajes.\n";
+        return;
+    }
+
+    string linea;
+
+    while (getline(archivo, linea)) {
+        if (linea.empty()) {
+            continue;
+        }
+
+        // Separar los cuatro primeros campos.
+        string campos[4];
+        unsigned int campo = 0;
+        unsigned int posicion = 0;
+
+        for (; posicion < linea.length() && campo < 4; posicion++) {
+            if (linea[posicion] == ';') {
+                campo++;
+            } else {
+                campos[campo] += linea[posicion];
+            }
+        }
+
+        // Deben existir los cuatro separadores.
+        if (campo != 4) {
+            continue;
+        }
+
+        // Todo lo restante corresponde al texto del mensaje.
+        string texto = linea.substr(posicion);
+
+        try {
+            unsigned int indiceEmisor =
+                static_cast<unsigned int>(stoul(campos[0]));
+
+            unsigned int indiceReceptor =
+                static_cast<unsigned int>(stoul(campos[1]));
+
+            Fecha fechaEnvio;
+
+            if (!fechaEnvio.setFecha(campos[2])) {
+                continue;
+            }
+
+            unsigned int estado =
+                static_cast<unsigned int>(stoul(campos[3]));
+
+            if (estado > 1 ||
+                indiceEmisor == 0 ||
+                indiceEmisor > cantidadUsuarios ||
+                indiceReceptor == 0 ||
+                indiceReceptor > cantidadUsuarios ||
+                indiceEmisor == indiceReceptor ||
+                texto.empty()) {
+                continue;
+            }
+
+            Usuario* emisor = &usuarios[indiceEmisor - 1];
+            Usuario* receptor = &usuarios[indiceReceptor - 1];
+
+            Mensaje* mensaje = new Mensaje( //creacion de nuevo objeto mensaje con los datos en el orden del constructor
+                indiceEmisor,
+                indiceReceptor,
+                texto,
+                fechaEnvio
+                );
+
+            if (estado == 1) {
+                mensaje->marcarComoLeido();
+            }
+
+            // El receptor pasa a ser propietario del mensaje.
+            if (!receptor->registrarRecibido(mensaje)) {
+                delete mensaje;
+                continue;
+            }
+
+            // El emisor conserva solamente una referencia.
+            if (!emisor->registrarEnviado(mensaje)) {
+                receptor->retirarUltimoRecibido(mensaje);
+                delete mensaje;
+                continue;
+            }
+
+        } catch (...) {
+            // Ignorar registros con campos numericos invalidos.
+            continue;
+        }
+    }
+
+    archivo.close();
+
+    cout << "Mensajes cargados exitosamente.\n";
 }
